@@ -1,11 +1,16 @@
 package qp.scs.service;
 
+import static com.google.common.base.Objects.equal;
+
 import org.springframework.stereotype.Service;
 
 import qp.scs.dto.request.LoginRequestDTO;
 import qp.scs.dto.response.LoginResponseDTO;
 import qp.scs.exception.LoginFailedException;
+import qp.scs.exception.SessionExpiredException;
+import qp.scs.model.SessionToken;
 import qp.scs.model.User;
+import qp.scs.model.api.Entity;
 import qp.scs.repository.UserRepository;
 import qp.scs.security.TokenUser;
 
@@ -14,8 +19,12 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
-import org.joda.time.Period; 
+import org.joda.time.Period;
 
+import java.io.Serializable;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.concurrent.atomic.AtomicLong;
 
 import qp.scs.security.TokenHandler;
@@ -86,7 +95,7 @@ public class UserService extends BaseService {
 		TokenUser tokenUser = new TokenUser(user, period);
 		String token = tokenHandler.createTokenForUser(tokenUser);
 
-		//saveSessionToken(tokenUser, token);
+		saveSessionToken(tokenUser, token);
 
 		logger.info("Login successful for user[name: " + user.getUsername());
 		
@@ -95,9 +104,66 @@ public class UserService extends BaseService {
 	
 
 	/**
+	 * Saves a session token
+	 * 
+	 * @param user
+	 * @param token
+	 */
+	private void saveSessionToken(TokenUser user, String token) {
+		SessionToken session = new SessionToken();
+		session.setExpires(LocalDateTime.ofInstant(Instant.ofEpochMilli(user.expires),
+				ZoneId.systemDefault()));
+		session.setToken(token);
+		session.setSessionUser(get(User.class, user.id));
+
+		save(session);
+	}
+	
+	
+	/**
 	 * Throws a login failed exception
 	 */
 	private void throwLoginFailedException() {
 		throw new LoginFailedException();
 	}
+	
+	/**
+	 * Returns the id of the user from the specified token.
+	 * 
+	 * @param token
+	 * @return
+	 */
+	public Long getUserIdFromToken(String token) {
+		TokenUser tokenUser = tokenHandler.parseUserFromToken(token);
+		if (tokenUser == null) {
+			throw new SessionExpiredException();
+		}
+
+		SessionToken session = userRepository.getSession(token);
+		if (equal(session.getSessionUser().getId(), tokenUser.id) == false) {
+			// The user id from the session doesn't match what is in the database, possible that token was compromised
+			throw new LoginFailedException();
+		}
+
+		// Another expiry check here, just in case
+//		if (LocalDateTime.now().isAfter(session.getExpires())) {
+//			throw new SessionExpiredException();
+//		}
+
+		return tokenUser.id;
+	}
+	
+	/**
+	 * Returns the user based on the session token
+	 * 
+	 * @param token
+	 * @return
+	 */
+	public User getUserFromToken(String token) {
+		Long userId = getUserIdFromToken(token);
+		return get(User.class, userId);
+		
+	}
+
+
 }

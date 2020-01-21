@@ -1,5 +1,7 @@
 package qp.scs.repository;
 
+import java.io.Serializable;
+
 import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
 
@@ -13,12 +15,13 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
 import qp.scs.model.User;
+import qp.scs.model.api.Entity;
 
 //This will be AUTO IMPLEMENTED by Spring into a Bean called userRepository
 //CRUD refers Create, Read, Update, Delete
-@Repository
+@Repository(value = "baseRepository")
 @Transactional
-public class BasicRepository {
+public class BaseRepository {
 
 	protected transient Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -46,4 +49,20 @@ public class BasicRepository {
 		return getSession().createQuery(hql);
 	}
 
+	/**
+	 * Retrieves the object with the specified id
+	 * 
+	 * @param cls
+	 * @param id
+	 * @return
+	 */
+	public <T extends Entity> T get(Class<T> cls, Serializable id) {
+		T instance = getSession().get(cls, id);
+
+		return instance;
+	}
+	
+	public <T extends Entity> void save(T t) {
+		getSession().save(t);
+	}
 }

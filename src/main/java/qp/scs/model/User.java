@@ -6,7 +6,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 @Entity
-public class User {
+public class User extends qp.scs.model.Entity{
 
 	public Long getId() {
 		return id;
