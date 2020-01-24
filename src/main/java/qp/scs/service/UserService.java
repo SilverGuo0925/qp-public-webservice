@@ -14,13 +14,15 @@ import qp.scs.model.api.Entity;
 import qp.scs.repository.UserRepository;
 import qp.scs.security.TokenUser;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.joda.time.Period;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -166,4 +168,11 @@ public class UserService extends BaseService {
 	}
 
 
+	public void export(XSSFWorkbook workbook, HttpServletResponse response, String contentType) throws IOException {
+		workbook.write(response.getOutputStream());
+		response.setContentType(contentType);
+		response.setHeader("Content-Disposition", "attachment");
+		response.flushBuffer();
+		workbook.close();
+	}
 }
