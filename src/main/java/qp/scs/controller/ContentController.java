@@ -7,13 +7,20 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.validation.annotation.Validated;
 
 import qp.scs.Greeting;
@@ -44,9 +51,22 @@ public class ContentController {
 	  @RequestMapping("/exportFile")
 	  public void greeting(HttpServletResponse response)  throws IOException {
 		  
-		  XSSFWorkbook workbook = new XSSFWorkbook();
-		  XSSFSheet sheet = workbook.createSheet("Drivers");
+			Resource resource = new ClassPathResource("Quotation.xlsx");
+
+		    FileInputStream file = new FileInputStream(resource.getFile());
 		  
+		  //Create Workbook instance holding reference to .xlsx file
+            XSSFWorkbook workbook = new XSSFWorkbook(file);
+ 
+		    
+//		  XSSFWorkbook workbook = new XSSFWorkbook();
+//		  XSSFSheet sheet = workbook.createSheet("Drivers");
+            
+            XSSFSheet sheet = workbook.getSheet("Quote");
+		  
+            sheet.getRow(9).getCell(0).setCellType(CellType.STRING);
+            sheet.getRow(9).getCell(0).setCellValue("Silync Technology Pte Ltd");
+            
 		  userService.export(workbook, response, "application/vnd.ms-excel");
 			
 	
