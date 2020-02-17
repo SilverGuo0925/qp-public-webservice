@@ -26,4 +26,13 @@ public class CustomerRepository extends BaseRepository {
 		return resultList;
 	}
 	
+	public Customer getCustomerById(String customerId) {
+		String hql = "from Customer c where lower(c.id) = lower(:id)";
+
+		Query query = createQuery(hql);
+		query.setParameter("id", customerId);
+
+		return (Customer) query.uniqueResult();
+	}
+	
 }

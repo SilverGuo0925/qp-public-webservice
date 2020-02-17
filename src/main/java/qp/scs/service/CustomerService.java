@@ -56,9 +56,9 @@ public class CustomerService extends BaseService {
 		customer.companyName=request.companyName;
 		customer.phone=request.phone;
 		customer.email =request.email;
-		customer.id=request.customerId;
+		customer.id=request.id;
 		customer.address=request.address;
-		customer.buidingFloorUnit=request.buidingFloorUnit;
+		customer.buildingFloorUnit=request.buildingFloorUnit;
 		customer.postcode=request.postcode;
 		
 		save(customer);
@@ -69,6 +69,12 @@ public class CustomerService extends BaseService {
 		
 	
 		return  customerRepository.getCustomers();		
+	}
+	
+	public Customer getCustomerById(String customerId) {
+		
+		
+		return  customerRepository.getCustomerById(customerId);		
 	}
 
 }

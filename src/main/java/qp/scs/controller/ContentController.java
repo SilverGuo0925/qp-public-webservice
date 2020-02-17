@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -28,7 +29,9 @@ import qp.scs.dto.request.LoginRequestDTO;
 import qp.scs.dto.request.RequestDTO;
 import qp.scs.dto.response.LoginResponseDTO;
 import qp.scs.dto.response.ProfileDetailResponseDTO;
+import qp.scs.model.Customer;
 import qp.scs.model.User;
+import qp.scs.service.CustomerService;
 import qp.scs.service.UserService;
 
 @RestController
@@ -37,6 +40,9 @@ public class ContentController {
 	
 	@Autowired
 	private UserService userService;
+	
+	@Autowired
+	private CustomerService customerService;
 	
 //	@RequestMapping(path = "/exportFile", method= RequestMethod.POST)
 //	  public ProfileDetailResponseDTO login(@Validated @RequestBody RequestDTO request) {
@@ -49,27 +55,115 @@ public class ContentController {
 //	  }
 	
 	  @RequestMapping("/exportFile")
-	  public void greeting(HttpServletResponse response)  throws IOException {
-		  
-			Resource resource = new ClassPathResource("Quotation.xlsx");
+	  public void exportFile(HttpServletResponse response,@RequestParam Map<String,String> requestParams)  throws IOException {
+		 String customerId=requestParams.get("customerId");
+		 String docType=requestParams.get("docType");
 
-		    FileInputStream file = new FileInputStream(resource.getFile());
-		  
-		  //Create Workbook instance holding reference to .xlsx file
-            XSSFWorkbook workbook = new XSSFWorkbook(file);
- 
-		    
-//		  XSSFWorkbook workbook = new XSSFWorkbook();
-//		  XSSFSheet sheet = workbook.createSheet("Drivers");
-            
-            XSSFSheet sheet = workbook.getSheet("Quote");
-		  
-            sheet.getRow(9).getCell(0).setCellType(CellType.STRING);
-            sheet.getRow(9).getCell(0).setCellValue("Silync Technology Pte Ltd");
-            
-		  userService.export(workbook, response, "application/vnd.ms-excel");
+		 Customer customer=	customerService.getCustomerById(customerId);
+
+		
+		if(docType.equals("0"))	
+		{
 			
-	
+			Resource resource = new ClassPathResource("template\\Quotation.xlsx");
+
+			FileInputStream file = new FileInputStream(resource.getFile());
+
+			// Create Workbook instance holding reference to .xlsx file
+			XSSFWorkbook workbook = new XSSFWorkbook(file);
+
+			// XSSFWorkbook workbook = new XSSFWorkbook();
+			// XSSFSheet sheet = workbook.createSheet("Drivers");
+
+			XSSFSheet sheet = workbook.getSheet("Quote");
+
+			sheet.getRow(6).getCell(5).setCellType(CellType.STRING);
+			sheet.getRow(6).getCell(5).setCellValue(customer.id);
+			
+			sheet.getRow(9).getCell(0).setCellType(CellType.STRING);
+			sheet.getRow(9).getCell(0).setCellValue(customer.companyName);
+			
+			sheet.getRow(10).getCell(0).setCellType(CellType.STRING);
+			sheet.getRow(10).getCell(0).setCellValue(customer.buildingFloorUnit+", "+ customer.address);
+			
+			sheet.getRow(11).getCell(0).setCellType(CellType.STRING);
+			sheet.getRow(11).getCell(0).setCellValue("Singapore "+customer.postcode);
+
+			sheet.getRow(12).getCell(0).setCellType(CellType.STRING);
+			sheet.getRow(12).getCell(0).setCellValue("Attn Person: "+ customer.contactPerson.toString());
+			
+			sheet.getRow(13).getCell(0).setCellType(CellType.STRING);
+			sheet.getRow(13).getCell(0).setCellValue("Phone: "+customer.phone.toString());
+			
+			userService.export(workbook, response, "application/vnd.ms-excel");
+		}
+		else if (docType.equals("1"))
+		{
+			Resource resource = new ClassPathResource("\\template\\Invoice.xlsx");
+
+			FileInputStream file = new FileInputStream(resource.getFile());
+
+			// Create Workbook instance holding reference to .xlsx file
+			XSSFWorkbook workbook = new XSSFWorkbook(file);
+
+			// XSSFWorkbook workbook = new XSSFWorkbook();
+			// XSSFSheet sheet = workbook.createSheet("Drivers");
+
+			XSSFSheet sheet = workbook.getSheet("Invoice");
+
+			sheet.getRow(4).getCell(5).setCellType(CellType.STRING);
+			sheet.getRow(4).getCell(5).setCellValue(customer.id);
+			
+			sheet.getRow(9).getCell(0).setCellType(CellType.STRING);
+			sheet.getRow(9).getCell(0).setCellValue(customer.companyName);
+			
+			sheet.getRow(10).getCell(0).setCellType(CellType.STRING);
+			sheet.getRow(10).getCell(0).setCellValue(customer.buildingFloorUnit+", "+ customer.address);
+			
+			sheet.getRow(11).getCell(0).setCellType(CellType.STRING);
+			sheet.getRow(11).getCell(0).setCellValue("Singapore "+customer.postcode);
+
+			sheet.getRow(12).getCell(0).setCellType(CellType.STRING);
+			sheet.getRow(12).getCell(0).setCellValue("Attn Person: "+ customer.contactPerson.toString());
+			
+			sheet.getRow(13).getCell(0).setCellType(CellType.STRING);
+			sheet.getRow(13).getCell(0).setCellValue("Phone: "+customer.phone.toString());
+			
+			userService.export(workbook, response, "application/vnd.ms-excel");
+		}
+		else {
+			Resource resource = new ClassPathResource("\\template\\DeliveryNote.xlsx");
+
+			FileInputStream file = new FileInputStream(resource.getFile());
+
+			// Create Workbook instance holding reference to .xlsx file
+			XSSFWorkbook workbook = new XSSFWorkbook(file);
+
+			// XSSFWorkbook workbook = new XSSFWorkbook();
+			// XSSFSheet sheet = workbook.createSheet("Drivers");
+
+			XSSFSheet sheet = workbook.getSheet("DeliveryNote");
+
+			sheet.getRow(6).getCell(5).setCellType(CellType.STRING);
+			sheet.getRow(6).getCell(5).setCellValue(customer.id);
+			
+			sheet.getRow(9).getCell(0).setCellType(CellType.STRING);
+			sheet.getRow(9).getCell(0).setCellValue(customer.companyName);
+			
+			sheet.getRow(10).getCell(0).setCellType(CellType.STRING);
+			sheet.getRow(10).getCell(0).setCellValue(customer.buildingFloorUnit+", "+ customer.address);
+			
+			sheet.getRow(11).getCell(0).setCellType(CellType.STRING);
+			sheet.getRow(11).getCell(0).setCellValue("Singapore "+customer.postcode);
+
+			sheet.getRow(12).getCell(0).setCellType(CellType.STRING);
+			sheet.getRow(12).getCell(0).setCellValue("Attn Person: "+ customer.contactPerson.toString());
+			
+			sheet.getRow(13).getCell(0).setCellType(CellType.STRING);
+			sheet.getRow(13).getCell(0).setCellValue("Phone: "+customer.phone.toString());
+			
+			userService.export(workbook, response, "application/vnd.ms-excel");
+		}
 	  }
 	
 

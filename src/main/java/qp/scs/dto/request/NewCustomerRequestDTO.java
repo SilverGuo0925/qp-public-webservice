@@ -17,8 +17,8 @@ public class NewCustomerRequestDTO {
 	
 	public String email;
 	
-	@NotBlank(message ="customerId can't be blank")
-	public String customerId;
+	@NotBlank(message ="id can't be blank")
+	public String id;
 	
 	
 	@NotBlank(message ="address can't be blank")
@@ -28,7 +28,7 @@ public class NewCustomerRequestDTO {
 	public Integer postcode;
 	
 
-	public String buidingFloorUnit;
+	public String buildingFloorUnit;
 	
 	
 }

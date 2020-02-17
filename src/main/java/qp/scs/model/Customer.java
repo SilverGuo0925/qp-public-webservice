@@ -25,7 +25,7 @@ public class Customer extends qp.scs.model.Entity{
 	
 	public Integer postcode;
 	
-	public String buidingFloorUnit;
+	public String buildingFloorUnit;
 	
 	
 	public String getContactPerson() {
@@ -77,11 +77,11 @@ public class Customer extends qp.scs.model.Entity{
 	}
 
 	public String getBuidingFloorUnit() {
-		return buidingFloorUnit;
+		return buildingFloorUnit;
 	}
 
 	public void setBuidingFloorUnit(String buidingFloorUnit) {
-		this.buidingFloorUnit = buidingFloorUnit;
+		this.buildingFloorUnit = buidingFloorUnit;
 	}
 
 	public Customer() {
